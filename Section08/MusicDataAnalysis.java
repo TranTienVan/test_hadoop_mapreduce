@@ -41,13 +41,11 @@ public class MusicDataAnalysis {
 
             if (key.compareTo(new Text("unique_listeners")) == 0) {
                 int sum = 0;
-                ArrayList<Integer> dynamicArray = new ArrayList<Integer>();
+                ArrayList<String> dynamicArray = new ArrayList<String>();
 
                 for (IntWritable value : values) {
-                    context.write(new Text("Hello"), new IntWritable(value.get()));
-                    if (!dynamicArray.contains(value.get())) {
-                        context.write(new Text("Hello2"), new IntWritable(value.get()));
-                        dynamicArray.add(value.get());
+                    if (!dynamicArray.contains(value.toString())) {
+                        dynamicArray.add(value.toString());
                         sum += 1;
                     }
                 }
