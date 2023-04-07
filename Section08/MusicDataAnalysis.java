@@ -44,9 +44,9 @@ public class MusicDataAnalysis {
                 ArrayList<Integer> dynamicArray = new ArrayList<Integer>();
 
                 for (IntWritable value : values) {
-                    System.out.println(value.get());
+                    context.write(new Text("Hello"), new IntWritable(value.get()));
                     if (!dynamicArray.contains(value.get())) {
-                        System.out.println(value.get());
+                        context.write(new Text("Hello2"), new IntWritable(value.get()));
                         dynamicArray.add(value.get());
                         sum += 1;
                     }
