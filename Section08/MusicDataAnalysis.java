@@ -12,6 +12,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import java.util.ArrayList;
 
 public class MusicDataAnalysis {
 
@@ -25,6 +26,7 @@ public class MusicDataAnalysis {
             context.write(new Text("unique_listeners"), new IntWritable(Integer.parseInt(fields[0])));
             context.write(new Text("track_shares"), new IntWritable(Integer.parseInt(fields[2])));
             context.write(new Text("radio_listens"), new IntWritable(Integer.parseInt(fields[3])));
+            context.write(new Text("radio_skips"), new IntWritable(Integer.parseInt(fields[4])));
             context.write(trackId, new IntWritable(1));
             if (Integer.parseInt(fields[3]) == 1 && Integer.parseInt(fields[4]) == 1) {
                 context.write(trackId, new IntWritable(1));
@@ -36,11 +38,26 @@ public class MusicDataAnalysis {
         @Override
         public void reduce(Text key, Iterable<IntWritable> values, Context context)
                 throws IOException, InterruptedException {
-            int sum = 0;
-            for (IntWritable value : values) {
-                sum += value.get();
+
+            if (key.equals("unique_listeners")) {
+                int sum = 0;
+                ArrayList<Integer> dynamicArray = new ArrayList<Integer>();
+
+                for (IntWritable value : values) {
+                    if (!dynamicArray.contains(value.get())) {
+                        dynamicArray.add(value.get());
+                        sum += 1;
+                    }
+                }
+                context.write(key, new IntWritable(sum));
+            } else {
+                int sum = 0;
+                for (IntWritable value : values) {
+                    sum += value.get();
+                }
+                context.write(key, new IntWritable(sum));
             }
-            context.write(key, new IntWritable(sum));
+
         }
     }
 
