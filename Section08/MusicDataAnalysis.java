@@ -39,7 +39,7 @@ public class MusicDataAnalysis {
         public void reduce(Text key, Iterable<IntWritable> values, Context context)
                 throws IOException, InterruptedException {
 
-            if (key.equals("unique_listeners")) {
+            if (key.compareTo(new Text("unique_listeners")) == 0) {
                 int sum = 0;
                 ArrayList<Integer> dynamicArray = new ArrayList<Integer>();
 
