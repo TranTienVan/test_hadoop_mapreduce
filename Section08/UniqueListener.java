@@ -24,7 +24,7 @@ public class UniqueListener {
 
         @Override
         protected void setup(Context context) throws IOException, InterruptedException {
-            ArrayList<String> user_ids = new ArrayList<String>();
+            user_ids = new ArrayList<String>();
         }
 
         @Override
