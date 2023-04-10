@@ -19,7 +19,6 @@ public class UniqueListener {
 
     public static class MusicDataMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
         private Text trackId = new Text();
-        private final static IntWritable one = new IntWritable(1);
         private ArrayList<String> user_ids;
 
         @Override
@@ -33,16 +32,24 @@ public class UniqueListener {
 
             user_ids.add(fields[0]);
 
+            context.write(new Text("Track Shared " + fields[1]), new IntWritable(0));
+            if (Integer.parseInt(fields[2]) == 1) {
+                context.write(new Text("Track Shared " + fields[1]), new IntWritable(1));
+            }
+
             // context.write(new Text("unique_listeners"), new
             // IntWritable(Integer.parseInt(fields[0])));
 
-            context.write(new Text("track_shares"), new IntWritable(Integer.parseInt(fields[2])));
-            context.write(new Text("radio_listens"), new IntWritable(Integer.parseInt(fields[3])));
-            context.write(new Text("radio_skips"), new IntWritable(Integer.parseInt(fields[4])));
-            context.write(trackId, new IntWritable(1));
-            if (Integer.parseInt(fields[3]) == 1 && Integer.parseInt(fields[4]) == 1) {
-                context.write(trackId, new IntWritable(1));
-            }
+            // context.write(new Text("track_shares"), new
+            // IntWritable(Integer.parseInt(fields[2])));
+            // context.write(new Text("radio_listens"), new
+            // IntWritable(Integer.parseInt(fields[3])));
+            // context.write(new Text("radio_skips"), new
+            // IntWritable(Integer.parseInt(fields[4])));
+            // context.write(trackId, new IntWritable(1));
+            // if (Integer.parseInt(fields[3]) == 1 && Integer.parseInt(fields[4]) == 1) {
+            // context.write(trackId, new IntWritable(1));
+            // }
         }
 
         @Override
