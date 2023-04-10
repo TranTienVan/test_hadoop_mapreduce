@@ -18,20 +18,39 @@ public class DeIdentifyData {
     public static class PatientDataMapper extends Mapper<LongWritable, Text, NullWritable, Text> {
         @Override
         public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+
             // Split the input record by comma
             String[] fields = value.toString().split(",");
-            EncryptModule encrypt_moduler = new EncryptModule();
-            // Construct the output value as comma-separated fields
-            String outputValue = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s",
-                    encrypt_moduler.encrypt(fields[0]),
-                    encrypt_moduler.encrypt(fields[1]),
-                    encrypt_moduler.encrypt(fields[2]),
-                    encrypt_moduler.encrypt(fields[3]),
-                    encrypt_moduler.encrypt(fields[4]),
-                    encrypt_moduler.encrypt(fields[5]),
-                    encrypt_moduler.encrypt(fields[6]),
-                    encrypt_moduler.encrypt(fields[7]),
-                    encrypt_moduler.encrypt(fields[8]));
+            String outputValue;
+
+            if (fields[0] == "PatientID") {
+                // Construct the output value as comma-separated fields
+                outputValue = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s",
+                        fields[0],
+                        fields[1],
+                        fields[2],
+                        fields[3],
+                        fields[4],
+                        fields[5],
+                        fields[6],
+                        fields[7],
+                        fields[8]);
+            }
+
+            else {
+                EncryptModule encrypt_moduler = new EncryptModule();
+                // Construct the output value as comma-separated fields
+                outputValue = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s",
+                        encrypt_moduler.encrypt(fields[0]),
+                        encrypt_moduler.encrypt(fields[1]),
+                        encrypt_moduler.encrypt(fields[2]),
+                        encrypt_moduler.encrypt(fields[3]),
+                        encrypt_moduler.encrypt(fields[4]),
+                        encrypt_moduler.encrypt(fields[5]),
+                        encrypt_moduler.encrypt(fields[6]),
+                        encrypt_moduler.encrypt(fields[7]),
+                        encrypt_moduler.encrypt(fields[8]));
+            }
 
             // Write the output value to the reducer
             context.write(NullWritable.get(), new Text(outputValue));

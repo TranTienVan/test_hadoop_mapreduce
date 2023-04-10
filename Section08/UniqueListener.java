@@ -5,7 +5,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -18,7 +17,7 @@ import java.util.HashSet;
 public class UniqueListener {
 
     public static class MusicDataMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
-        private Text trackId = new Text();
+
         private ArrayList<String> user_ids;
 
         @Override
@@ -29,6 +28,9 @@ public class UniqueListener {
         @Override
         public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
             String[] fields = value.toString().split("\\|");
+            if (fields[0] == "UserId") {
+                return;
+            }
 
             user_ids.add(fields[0]);
 
