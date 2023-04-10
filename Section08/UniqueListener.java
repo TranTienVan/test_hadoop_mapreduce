@@ -37,19 +37,17 @@ public class UniqueListener {
                 context.write(new Text("Track Shared " + fields[1]), new IntWritable(1));
             }
 
-            // context.write(new Text("unique_listeners"), new
-            // IntWritable(Integer.parseInt(fields[0])));
+            context.write(new Text("Track Listened Radio " + fields[1]), new IntWritable(0));
+            if (Integer.parseInt(fields[3]) == 1) {
+                context.write(new Text("Track Listened Radio " + fields[1]), new IntWritable(1));
+            }
 
-            // context.write(new Text("track_shares"), new
-            // IntWritable(Integer.parseInt(fields[2])));
-            // context.write(new Text("radio_listens"), new
-            // IntWritable(Integer.parseInt(fields[3])));
-            // context.write(new Text("radio_skips"), new
-            // IntWritable(Integer.parseInt(fields[4])));
-            // context.write(trackId, new IntWritable(1));
-            // if (Integer.parseInt(fields[3]) == 1 && Integer.parseInt(fields[4]) == 1) {
-            // context.write(trackId, new IntWritable(1));
-            // }
+            context.write(new Text("Track Listened Total " + fields[1]), new IntWritable(1));
+
+            context.write(new Text("Track Skipped Radio " + fields[1]), new IntWritable(0));
+            if (Integer.parseInt(fields[3]) == 1 && Integer.parseInt(fields[4]) == 1) {
+                context.write(new Text("Track Skipped Radio " + fields[1]), new IntWritable(1));
+            }
         }
 
         @Override
@@ -68,18 +66,6 @@ public class UniqueListener {
         public void reduce(Text key, Iterable<IntWritable> values, Context context)
                 throws IOException, InterruptedException {
 
-            // if (key.compareTo(new Text("unique_listeners")) == 0) {
-            // int sum = 0;
-            // ArrayList<String> dynamicArray = new ArrayList<String>();
-
-            // for (IntWritable value : values) {
-
-            // dynamicArray.add(value.toString());
-            // sum += 1;
-
-            // }
-            // context.write(key, new IntWritable(sum));
-            // } else {
             int sum = 0;
             for (IntWritable value : values) {
                 sum += value.get();
