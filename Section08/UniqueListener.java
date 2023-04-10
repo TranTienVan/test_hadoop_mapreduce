@@ -39,24 +39,24 @@ public class UniqueListener {
         public void reduce(Text key, Iterable<IntWritable> values, Context context)
                 throws IOException, InterruptedException {
 
-            if (key.compareTo(new Text("unique_listeners")) == 0) {
-                int sum = 0;
-                ArrayList<String> dynamicArray = new ArrayList<String>();
+            // if (key.compareTo(new Text("unique_listeners")) == 0) {
+            // int sum = 0;
+            // ArrayList<String> dynamicArray = new ArrayList<String>();
 
-                for (IntWritable value : values) {
+            // for (IntWritable value : values) {
 
-                    dynamicArray.add(value.toString());
-                    sum += 1;
+            // dynamicArray.add(value.toString());
+            // sum += 1;
 
-                }
-                context.write(key, new IntWritable(sum));
-            } else {
-                int sum = 0;
-                for (IntWritable value : values) {
-                    sum += value.get();
-                }
-                context.write(key, new IntWritable(sum));
+            // }
+            // context.write(key, new IntWritable(sum));
+            // } else {
+            int sum = 0;
+            for (IntWritable value : values) {
+                sum += value.get();
             }
+            context.write(key, new IntWritable(sum));
+            // }
 
         }
     }
