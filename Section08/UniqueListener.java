@@ -28,7 +28,7 @@ public class UniqueListener {
         @Override
         public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
             String[] fields = value.toString().split("\\|");
-            if (fields[0] == "UserId") {
+            if (fields[0].equals("UserId")) {
                 return;
             }
 

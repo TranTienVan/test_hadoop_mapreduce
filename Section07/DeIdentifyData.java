@@ -23,7 +23,7 @@ public class DeIdentifyData {
             String[] fields = value.toString().split(",");
             String outputValue;
 
-            if (fields[0] == "PatientID") {
+            if (fields[0].equals("PatientID")) {
                 // Construct the output value as comma-separated fields
                 outputValue = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s",
                         fields[0],
