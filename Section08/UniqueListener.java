@@ -1,79 +1,77 @@
 package Section08;
 
-import org.apache.hadoop.mapreduce.Job;
-import java.util.ArrayList;
+import java.io.IOException;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import java.io.IOException;
-import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Mapper;
-import java.io.IOException;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Reducer;
+import java.util.ArrayList;
 
 public class UniqueListener {
-    public static class LastFMConstants {
-        public static final int USER_ID = 0;
-        public static final int TRACK_ID = 1;
-        public static final int IS_SHARED = 2;
-        public static final int RADIO = 3;
-        public static final int IS_SKIPPED = 4;
-    }
 
-    public static class UniquePairsReducer extends Reducer<Text, Text, Text, Text> {
+    public static class MusicDataMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
+        private Text trackId = new Text();
 
-        private Text outputValue = new Text("");
-
-        public void reduce(Text key, Iterable<Text> values, Context context)
-                throws IOException, InterruptedException {
-
-            context.write(key, outputValue);
+        @Override
+        public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+            String[] fields = value.toString().split("\\|");
+            trackId.set(fields[1]);
+            context.write(new Text("unique_listeners"), new IntWritable(Integer.parseInt(fields[0])));
+            context.write(new Text("track_shares"), new IntWritable(Integer.parseInt(fields[2])));
+            context.write(new Text("radio_listens"), new IntWritable(Integer.parseInt(fields[3])));
+            context.write(new Text("radio_skips"), new IntWritable(Integer.parseInt(fields[4])));
+            context.write(trackId, new IntWritable(1));
+            if (Integer.parseInt(fields[3]) == 1 && Integer.parseInt(fields[4]) == 1) {
+                context.write(trackId, new IntWritable(1));
+            }
         }
     }
 
-    public static class UniquePairsMapper extends Mapper<LongWritable, Text, Text, Text> {
-
-        private Text outputKey = new Text();
-        private Text outputValue = new Text();
-
-        public void map(LongWritable key, Text value, Context context)
+    public static class MusicDataReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
+        @Override
+        public void reduce(Text key, Iterable<IntWritable> values, Context context)
                 throws IOException, InterruptedException {
 
-            String[] fields = value.toString().split("\\|");
-            String userId = fields[0];
-            String trackId = fields[1];
+            if (key.compareTo(new Text("unique_listeners")) == 0) {
+                int sum = 0;
+                ArrayList<String> dynamicArray = new ArrayList<String>();
 
-            outputKey.set(userId + "|" + trackId);
-            outputValue.set("");
+                for (IntWritable value : values) {
 
-            context.write(outputKey, outputValue);
+                    dynamicArray.add(value.toString());
+                    sum += 1;
+
+                }
+                context.write(key, new IntWritable(sum));
+            } else {
+                int sum = 0;
+                for (IntWritable value : values) {
+                    sum += value.get();
+                }
+                context.write(key, new IntWritable(sum));
+            }
+
         }
     }
 
     public static void main(String[] args) throws Exception {
-
-        if (args.length != 2) {
-            System.err.println("Usage: UniquePairsDriver <input path> <output path>");
-            System.exit(-1);
-        }
-
-        Job job = new Job();
+        Configuration conf = new Configuration();
+        Job job = Job.getInstance(conf, "Music Data Analysis");
         job.setJarByClass(UniqueListener.class);
-        job.setJobName("UniquePairs");
-
+        job.setMapperClass(MusicDataMapper.class);
+        job.setCombinerClass(MusicDataReducer.class);
+        job.setReducerClass(MusicDataReducer.class);
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(IntWritable.class);
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
-
-        job.setMapperClass(UniquePairsMapper.class);
-        job.setReducerClass(UniquePairsReducer.class);
-
-        job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(Text.class);
-
         System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
 }
