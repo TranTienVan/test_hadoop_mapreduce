@@ -11,8 +11,26 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
 
 public class DeIdentifyData {
+    private static final String ALGORITHM = "AES";
+    private static final String KEY = "Hadoop Lab 2"; // Replace with your own secret key
+
+    public static String encrypt(String input) {
+        try {
+            SecretKeySpec keySpec = new SecretKeySpec(KEY.getBytes(), ALGORITHM);
+            Cipher cipher = Cipher.getInstance(ALGORITHM);
+            cipher.init(Cipher.ENCRYPT_MODE, keySpec);
+            byte[] encryptedBytes = cipher.doFinal(input.getBytes());
+            return Base64.getEncoder().encodeToString(encryptedBytes);
+        } catch (Exception e) {
+            return null;
+        }
+
+    }
 
     public static class PatientDataMapper extends Mapper<LongWritable, Text, NullWritable, Text> {
         @Override
@@ -22,7 +40,15 @@ public class DeIdentifyData {
 
             // Construct the output value as comma-separated fields
             String outputValue = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s",
-                    fields[0], fields[1], fields[2], fields[3], fields[4], fields[5], fields[6], fields[7], fields[8]);
+                    encrypt(fields[0]),
+                    encrypt(fields[1]),
+                    encrypt(fields[2]),
+                    encrypt(fields[3]),
+                    encrypt(fields[4]),
+                    encrypt(fields[5]),
+                    encrypt(fields[6]),
+                    encrypt(fields[7]),
+                    encrypt(fields[8]));
 
             // Write the output value to the reducer
             context.write(NullWritable.get(), new Text(outputValue));

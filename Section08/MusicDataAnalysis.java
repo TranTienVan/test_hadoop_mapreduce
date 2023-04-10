@@ -44,10 +44,10 @@ public class MusicDataAnalysis {
                 ArrayList<String> dynamicArray = new ArrayList<String>();
 
                 for (IntWritable value : values) {
-                    if (!dynamicArray.contains(value.toString())) {
-                        dynamicArray.add(value.toString());
-                        sum += 1;
-                    }
+
+                    dynamicArray.add(value.toString());
+                    sum += 1;
+
                 }
                 context.write(key, new IntWritable(sum));
             } else {
